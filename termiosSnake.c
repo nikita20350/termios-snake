@@ -43,6 +43,7 @@ void createNextNode(void);
 void updateField(void);
 void freeSnake(void);
 void moveSnake(void);
+void cleanup(void);
 
 int main(void) {
     init();
@@ -72,9 +73,7 @@ int main(void) {
     else {
         printf("Not enough\n");
     }
-    free(field);
-    freeSnake();
-    restoreNormalInput();
+    cleanup();
     return 0;
 }
 
@@ -179,6 +178,10 @@ void init(void) {
     // init field
 
     field =  malloc(sizeof(char[SIZE_X]) * SIZE_Y);
+    if (field == NULL) {
+        cleanup();
+        return;
+    }
     for (int i = 0; i < SIZE_Y; i++) {
         for (int j = 0; j < SIZE_X; j++) {
             field[i][j] = '.';
@@ -187,6 +190,10 @@ void init(void) {
     }
     // init snake
     snakeHead = malloc(sizeof(snakePos));
+    if (snakeHead == NULL) {
+        cleanup();
+        return;
+    }
     snakeHead -> next = NULL;
     snakeHead -> y = 0;
     snakeHead -> x = 5;
@@ -200,7 +207,7 @@ void init(void) {
 
     srand(time(NULL));
     placeEgg();
-
+    
     // init score
     score = 0;
 }
@@ -212,6 +219,10 @@ void placeEgg(void) {
 
 void createNextNode(void) {
     snakePos *node = malloc(sizeof(snakePos));
+    if (node == NULL) {
+        cleanup();
+        return;
+    }
     node -> next = tail;
     tail = node;
     if (trajectory == 'w') {
@@ -256,4 +267,12 @@ void moveSnake(void) {
         trav -> y = trav -> next -> y;
         trav -> x = trav -> next -> x;
     }
+}
+void cleanup(void) {
+    // Free the field
+    free(field);
+    // Free the snake
+    freeSnake();
+    // Restore normal terminal behaviour
+    restoreNormalInput();
 }
